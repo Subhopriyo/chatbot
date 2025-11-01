@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Pro - Dark Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary-bg: #0a0e1a;
+            --secondary-bg: #1a1f2e;
+            --card-bg: #2a3142;
+            --accent-color: #667eea;
+            --accent-secondary: #764ba2;
+            --text-primary: #e0e6ed;
+            --text-secondary: #8892b0;
+            --border-color: #3a4356;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh; color: var(--text-primary); overflow-x: hidden; line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column;
+            background: rgba(26, 31, 46, 0.95); backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4); border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
+            color: white; padding: 24px 32px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+
+        .logo {
+            width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px);
+        }
+
+        .header-text h1 { font-size: 1.8rem; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: 700; }
+        .header-text p { font-size: 0.9rem; opacity: 0.9; font-weight: 400; }
+
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+
+        .status {
+            padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; backdrop-filter: blur(10px);
+            background: rgba(76, 175, 80, 0.9); color: white; display: flex; align-items: center; gap: 6px;
+            transition: all 0.3s ease;
+        }
+        .status.disconnected { background: rgba(244, 67, 54, 0.9); }
+
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 8px 16px; 
+            border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; 
+            backdrop-filter: blur(10px); display: flex; align-items: center; gap: 6px; font-weight: 500;
+        }
+        .clear-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
+
+        .chat-area {
+            flex: 1; padding: 24px; overflow-y: auto; background: var(--secondary-bg);
+            scrollbar-width: thin; scrollbar-color: var(--border-color) transparent;
+        }
+        .chat-area::-webkit-scrollbar { width: 6px; }
+        .chat-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+        .message {
+            margin-bottom: 24px; display: flex; align-items: flex-start; gap: 16px;
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { flex-direction: row-reverse; }
+
+        .avatar {
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .message.bot .avatar { background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)); color: white; }
+        .message.user .avatar { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; }
+
+        .message-content {
+            max-width: 75%; padding: 18px 24px; border-radius: 20px; position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); line-height: 1.7; font-size: 0.95rem;
+        }
+        .message.bot .message-content {
+            background: var(--card-bg); color: var(--text-primary); border-bottom-left-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)); 
+            color: white; border-bottom-right-radius: 8px;
+        }
+
+        .typing {
+            display: none; align-items: center; gap: 12px; padding: 18px 24px;
+            background: var(--card-bg); border-radius: 20px; border-bottom-left-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
+        }
+
+        .typing-dots { display: flex; gap: 4px; }
+        .typing-dots span {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--accent-color);
+            animation: bounce 1.4s infinite;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+
+        .welcome {
+            text-align: center; padding: 48px 24px; color: var(--text-secondary);
+        }
+
+        .welcome h2 {
+            font-size: 2.5rem; margin-bottom: 16px; color: var(--text-primary);
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            background-clip: text; font-weight: 800;
+        }
+        .welcome p { font-size: 1.2rem; margin-bottom: 40px; opacity: 0.8; }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-color); border-radius: 16px; padding: 32px; 
+            text-align: center; margin: 20px 0; transition: all 0.3s ease; 
+            background: rgba(42, 49, 66, 0.3); cursor: pointer;
+        }
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: var(--accent-color); background: rgba(102, 126, 234, 0.1); transform: translateY(-2px);
+        }
+
+        .suggestions {
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 32px 0;
+        }
+
+        .suggestion {
+            background: var(--card-bg); padding: 12px 20px; border-radius: 24px; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1); color: var(--text-primary); font-weight: 500;
+        }
+        .suggestion:hover {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)); 
+            color: white; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .input-area { padding: 24px; background: var(--secondary-bg); border-top: 1px solid var(--border-color); }
+
+        .input-container {
+            display: flex; align-items: center; gap: 12px; background: var(--card-bg);
+            border-radius: 24px; padding: 12px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            transition: all 0.3s ease; border: 1px solid var(--border-color);
+        }
+        .input-container:focus-within {
+            box-shadow: 0 8px 40px rgba(102, 126, 234, 0.2); border-color: var(--accent-color);
+        }
+
+        .file-btn {
+            background: none; border: none; color: var(--accent-color); font-size: 1.3rem; cursor: pointer;
+            padding: 8px; border-radius: 50%; transition: all 0.3s ease; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .file-btn:hover { background: rgba(102, 126, 234, 0.1); transform: scale(1.1); }
+
+        .file-input { display: none; }
+
+        #messageInput {
+            flex: 1; border: none; outline: none; font-size: 1rem; background: transparent;
+            padding: 12px 16px; color: var(--text-primary); font-family: inherit;
+        }
+        #messageInput::placeholder { color: var(--text-secondary); }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary)); 
+            border: none; color: white; width: 44px; height: 44px; border-radius: 50%; 
+            font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease; 
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+        .send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4); }
+
+        .chart-container {
+            background: var(--card-bg); border-radius: 16px; padding: 24px; margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15); border: 1px solid var(--border-color);
+            position: relative; overflow: hidden;
+        }
+        .chart-container::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+        }
+
+        .chart-image {
+            max-width: 100%; height: auto; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: transform 0.3s ease;
+        }
+        .chart-image:hover { transform: scale(1.02); }
+
+        .file-info, .error, .success {
+            padding: 16px 20px; border-radius: 12px; margin: 12px 0; font-size: 0.9rem; border-left: 4px solid;
+        }
+        .file-info, .success {
+            background: rgba(76, 175, 80, 0.1); color: #81c784; border-left-color: var(--success-color);
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.1); color: #ef5350; border-left-color: var(--error-color);
+        }
+
+        @media (max-width: 768px) {
+            .container { margin: 0; border-radius: 0; height: 100vh; }
+            .header { padding: 20px; }
+            .header-content { flex-direction: column; gap: 16px; text-align: center; }
+            .message-content { max-width: 90%; }
+            .welcome { padding: 32px 20px; }
+            .welcome h2 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">🤖</div>
+                    <div class="header-text">
+                        <h1>AI Assistant Pro</h1>
+                        <p>Upload files, analyze data, and generate intelligent insights</p>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <button class="clear-btn" onclick="clearAll()">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                    <div class="status" id="status">
+                        <i class="fas fa-circle-notch fa-spin"></i> Connecting...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="welcome" id="welcome">
+                <h2>Welcome to AI Assistant</h2>
+                <p>Upload documents, data files, or start chatting for intelligent responses and beautiful visualizations</p>
+                
+                <div class="file-upload-area" id="uploadArea" onclick="document.getElementById('fileUpload').click()">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 16px;"></i>
+                    <p><strong>Click to upload files or drag & drop</strong></p>
+                    <p>Supports: Excel, CSV, PDF, Word, PowerPoint, Text files</p>
+                </div>
+                <input type="file" id="fileUpload" class="file-input" multiple accept=".pdf,.docx,.txt,.xlsx,.xls,.csv,.ppt,.pptx">
+
+                <div class="suggestions">
+                    <div class="suggestion" onclick="setMessage('Create a bar chart from my data')">
+                        <i class="fas fa-chart-bar"></i> Bar Chart
+                    </div>
+                    <div class="suggestion" onclick="setMessage('Show me a line graph of trends')">
+                        <i class="fas fa-chart-line"></i> Line Graph
+                    </div>
+                    <div class="suggestion" onclick="setMessage('Create a pie chart visualization')">
+                        <i class="fas fa-chart-pie"></i> Pie Chart
+                    </div>
+                    <div class="suggestion" onclick="setMessage('Analyze my data patterns')">
+                        <i class="fas fa-search"></i> Data Analysis
+                    </div>
+                </div>
+            </div>
+
+            <div class="message bot" style="display: none;">
+                <div class="avatar">🤖</div>
+                <div class="message-content typing" id="typing">
+                    <span>AI is thinking</span>
+                    <div class="typing-dots"><span></span><span></span><span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <label for="fileInput" class="file-btn" title="Upload files">
+                    <i class="fas fa-paperclip"></i>
+                </label>
+                <input type="file" id="fileInput" class="file-input" multiple accept=".pdf,.docx,.txt,.xlsx,.xls,.csv,.ppt,.pptx">
+                
+                <input type="text" id="messageInput" placeholder="Ask questions, request visualizations, or upload files for analysis..." onkeypress="handleKeyPress(event)">
+                
+                <button class="send-btn" onclick="sendMessage()" title="Send message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        let isTyping = false;
+        let messageCount = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            setupDragAndDrop();
+            checkBackendStatus();
+        });
+
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus(true, data);
+                    console.log('✅ Backend connected:', data);
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                console.error('❌ Backend connection failed:', error);
+                updateStatus(false);
+            }
+        }
+
+        function updateStatus(connected, data = null) {
+            const status = document.getElementById('status');
+            if (connected) {
+                status.className = 'status';
+                status.innerHTML = '<i class="fas fa-check-circle"></i> Connected';
+            } else {
+                status.className = 'status disconnected';
+                status.innerHTML = '<i class="fas fa-exclamation-circle"></i> Disconnected';
+            }
+        }
+
+        function setupFileUpload() {
+            ['fileInput', 'fileUpload'].forEach(id => {
+                document.getElementById(id).addEventListener('change', handleFileUpload);
+            });
+        }
+
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+            const chatArea = document.getElementById('chatArea');
+            
+            [uploadArea, chatArea].forEach(area => {
+                ['dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    area.addEventListener(eventName, handleDragEvents);
+                });
+            });
+        }
+
+        function handleDragEvents(e) {
+            e.preventDefault();
+            if (e.type === 'dragover') {
+                e.currentTarget.classList.add('dragover');
+            } else if (e.type === 'dragleave') {
+                e.currentTarget.classList.remove('dragover');
+            } else if (e.type === 'drop') {
+                e.currentTarget.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload({ target: { files: files } });
+                }
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            hideWelcome();
+            
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                addMessage(`📎 Uploading: ${file.name}`, 'user');
+                showTyping();
+
+                try {
+                    const response = await fetch(`${API_URL}/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    hideTyping();
+
+                    if (response.ok) {
+                        let message = `✅ ${result.message}`;
+                        if (result.columns) {
+                            message += `\n📊 Columns: ${result.columns.join(', ')}`;
+                        }
+                        addMessage(message, 'bot', 'success');
+                    } else {
+                        addMessage(`❌ Error: ${result.error}`, 'bot', 'error');
+                    }
+                } catch (error) {
+                    hideTyping();
+                    addMessage(`❌ Upload failed: ${error.message}`, 'bot', 'error');
+                }
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message || isTyping) return;
+
+            input.value = '';
+            hideWelcome();
+            addMessage(message, 'user');
+            showTyping();
+
+            try {
+                const response = await fetch(`${API_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: message })
+                });
+
+                const result = await response.json();
+                hideTyping();
+
+                if (response.ok) {
+                    let messageHtml = result.answer;
+                    
+                    if (result.chart_url) {
+                        messageHtml += `
+                            <div class="chart-container">
+                                <div style="background: rgba(102, 126, 234, 0.1); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border-left: 3px solid var(--accent-color); font-size: 0.9rem;">
+                                    📊 ${result.chart_info}
+                                </div>
+                                <img src="${result.chart_url}" class="chart-image" alt="Generated Chart" />
+                            </div>
+                        `;
+                    }
+                    
+                    if (result.sources && result.sources.length > 0) {
+                        messageHtml += `
+                            <div style="background: rgba(102, 126, 234, 0.1); padding: 16px 20px; border-radius: 12px; margin-top: 16px; border-left: 4px solid var(--accent-color); font-size: 0.9rem;">
+                                <strong style="color: var(--accent-color); display: block; margin-bottom: 8px;">📚 Sources:</strong>
+                                ${result.sources.join(', ')}
+                            </div>
+                        `;
+                    }
+                    
+                    addMessage(messageHtml, 'bot');
+                } else {
+                    addMessage(`❌ Error: ${result.error || 'Unknown error'}`, 'bot', 'error');
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage(`❌ Connection error: ${error.message}`, 'bot', 'error');
+            }
+        }
+
+        function addMessage(content, sender, type = null) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'bot' ? '🤖' : '👤';
+            let messageClass = 'message-content';
+            if (type === 'success') messageClass += ' success';
+            if (type === 'error') messageClass += ' error';
+            
+            messageDiv.innerHTML = `
+                <div class="avatar">${avatar}</div>
+                <div class="${messageClass}">${content.replace(/\n/g, '<br>')}</div>
+            `;
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            messageCount++;
+        }
+
+        function showTyping() {
+            const typing = document.getElementById('typing');
+            typing.style.display = 'flex';
+            typing.parentElement.style.display = 'flex';
+            isTyping = true;
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            typing.style.display = 'none';
+            typing.parentElement.style.display = 'none';
+            isTyping = false;
+        }
+
+        function hideWelcome() {
+            const welcome = document.getElementById('welcome');
+            if (welcome && messageCount === 0) {
+                welcome.style.display = 'none';
+            }
+        }
+
+        function setMessage(text) {
+            document.getElementById('messageInput').value = text;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function clearAll() {
+            if (!confirm('Clear all chat history and uploaded files?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/clear`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('chatArea').innerHTML = `
+                        <div class="welcome" id="welcome">
+                            <h2>Welcome to AI Assistant</h2>
+                            <p>Upload documents, data files, or start chatting for intelligent responses and beautiful visualizations</p>
+                            
+                            <div class="file-upload-area" id="uploadArea" onclick="document.getElementById('fileUpload').click()">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 16px;"></i>
+                                <p><strong>Click to upload files or drag & drop</strong></p>
+                                <p>Supports: Excel, CSV, PDF, Word, PowerPoint, Text files</p>
+                            </div>
+                            <input type="file" id="fileUpload" class="file-input" multiple accept=".pdf,.docx,.txt,.xlsx,.xls,.csv,.ppt,.pptx">
+
+                            <div class="suggestions">
+                                <div class="suggestion" onclick="setMessage('Create a bar chart from my data')">
+                                    <i class="fas fa-chart-bar"></i> Bar Chart
+                                </div>
+                                <div class="suggestion" onclick="setMessage('Show me a line graph of trends')">
+                                    <i class="fas fa-chart-line"></i> Line Graph
+                                </div>
+                                <div class="suggestion" onclick="setMessage('Create a pie chart visualization')">
+                                    <i class="fas fa-chart-pie"></i> Pie Chart
+                                </div>
+                                <div class="suggestion" onclick="setMessage('Analyze my data patterns')">
+                                    <i class="fas fa-search"></i> Data Analysis
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message bot" style="display: none;">
+                            <div class="avatar">🤖</div>
+                            <div class="message-content typing" id="typing">
+                                <span>AI is thinking</span>
+                                <div class="typing-dots"><span></span><span></span><span></span></div>
+                            </div>
+                        </div>
+                    `;
+                    messageCount = 0;
+                    setupFileUpload();
+                    setupDragAndDrop();
+                } else {
+                    alert('Failed to clear data: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error clearing data: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
