@@ -1,61 +1,33 @@
-# Operating system files
+# OS
 .DS_Store
 Thumbs.db
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
-.Python
-env/
+.env
+.env.*
 venv/
 .venv/
 venv*/
+
+# Virtual envs and pip
+.Python
 pip-log.txt
-pip-delete-this-directory.txt
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-.pytest_cache/
+
+# Logs
+*.log
+logs/
+
+# IDEs
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints
 
 # Build / packaging
 dist/
 build/
 *.egg-info/
-
-# Logs
-logs/
-*.log
-
-# IDEs / editors
-.vscode/
-.idea/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Environment / secrets
-.env
-.env.*
-.env.local
-.env.*.local
-secrets.*
-credentials*.json
-google-credentials*.json
-
-# Jupyter
-.ipynb_checkpoints
-
-# Misc
-*.bak
-*.swp
-*.tmp
