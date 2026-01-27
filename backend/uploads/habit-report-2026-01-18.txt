@@ -1,0 +1,34 @@
+
+═══════════════════════════════════════════
+📊 HABIT TRACKER REPORT
+═══════════════════════════════════════════
+Generated: 18/1/2026, 9:00:13 pm
+User: Panbhu
+
+📈 STATISTICS
+───────────────────────────────────────────
+Total Habits: 4
+Current Streak: 7 days
+Best Streak: 1 days
+Monthly Completion: 6%
+Consistency Score: 7%
+
+📋 HABIT DETAILS
+───────────────────────────────────────────
+• GATE EXAM
+  Total: 2 days | Streak: 0 days
+  Goal: Not set
+
+• WALKING
+  Total: 2 days | Streak: 0 days
+  Goal: Not set
+
+• BOOK
+  Total: 1 days | Streak: 0 days
+  Goal: Not set
+
+• LEETCODE
+  Total: 3 days | Streak: 0 days
+  Goal: Not set
+
+═══════════════════════════════════════════

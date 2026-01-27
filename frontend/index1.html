@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Document Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Documents</h2>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('files')">Files</button>
+                    <button class="tab" onclick="switchTab('chats')">Recent Chats</button>
+                </div>
+            </div>
+
+            <div class="files-list" id="filesList">
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No files uploaded yet</p>
+                </div>
+                
+                <!-- Files will be added here dynamically -->
+            </div>
+
+            <div class="sidebar-footer">
+                <!-- Hidden file input -->
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.csv" multiple style="display: none;">
+                
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Files
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="logo">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h1>AI Document Assistant</h1>
+                </div>
+                <div class="header-center">
+                    <span class="document-name" id="currentDocument">No document selected</span>
+                    <span class="status" id="statusIndicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Ready</span>
+                    </span>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="clearChat()" title="Clear Chat">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/100?img=12" alt="User">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h2>Welcome to AI Document Assistant</h2>
+                    <p>Upload your documents and start asking questions</p>
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <i class="fas fa-file-upload"></i>
+                            <h3>Upload Documents</h3>
+                            <p>PDF, Word, Text files</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-brain"></i>
+                            <h3>AI Analysis</h3>
+                            <p>Intelligent responses</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>Insights</h3>
+                            <p>Data visualization</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Ask me anything about your documents..." 
+                        onkeypress="handleKeyPress(event)"
+                    >
+                    <button class="voice-btn" onclick="toggleVoiceInput()" title="Voice input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send</span>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <span class="input-hint">Press Enter to send, Shift + Enter for new line</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- File Upload Progress Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Uploading Files</h3>
+            </div>
+            <div class="modal-body">
+                <div class="progress-container" id="progressContainer">
+                    <!-- Progress bars will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

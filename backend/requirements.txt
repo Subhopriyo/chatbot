@@ -1,48 +1,29 @@
-# Core Flask dependencies
-Flask==2.3.3
+# Flask and web framework
+Flask==3.0.0
 flask-cors==4.0.0
-werkzeug==2.3.7
 
-# Document processing and AI
-langchain==0.0.335
-langchain-community==0.0.8
-google-generativeai==0.3.1
+# AI and ML
+requests==2.31.0
 
-# Vector database and embeddings
-chromadb==0.4.18
+# Document processing
+langchain==0.1.0
+langchain-community==0.0.10
+chromadb==0.4.22
 sentence-transformers==2.2.2
+PyPDF2==3.0.1
+python-docx==1.1.0
+python-pptx==0.6.23
+PyMuPDF==1.23.8
 
 # Data processing
-pandas==2.1.3
-numpy==1.24.4
+pandas==2.1.4
+numpy==1.26.2
+openpyxl==3.1.2
 
 # Visualization
 matplotlib==3.8.2
+seaborn==0.13.0
 
-# File processing
-PyPDF2==3.0.1
-python-docx==0.8.11
-docx2txt==0.8
-openpyxl==3.1.2
-xlrd==2.0.1
-
-# HTML processing and web scraping
-beautifulsoup4==4.12.2
-requests==2.31.0
-lxml==4.9.3
-
-# Additional document loaders
-unstructured==0.11.6
-python-magic==0.4.27
-
-# Text processing
-nltk==3.8.1
-
-# Security
-Werkzeug==2.3.7
-
-# Optional but recommended
+# Utilities
+werkzeug==3.0.1
 python-dotenv==1.0.0
-pytz 
-requests  # For timezone and web requests
-sentence-transformers>=2.2.2
